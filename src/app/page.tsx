@@ -195,8 +195,18 @@ export default function Home() {
 
           {/* Footer Note */}
           <div className="mt-8 pt-6 border-t border-slate-800 text-center">
-            <p className="text-xs text-slate-500">
-              FER202 Front-End Web Development Lab 1 Submission
+            <p className="text-xs text-slate-400">
+              Don&apos;t have an account?{" "}
+              <a
+                href="#signup"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setStatusMessage({ text: "Redirecting to Sign Up page...", type: "success" });
+                }}
+                className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
+                Sign up
+              </a>
             </p>
           </div>
 
