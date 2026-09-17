@@ -5,20 +5,18 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FER202 - Lab 1 Portal Login",
-  description: "Lab 1 Next.js Project Setup & Portal Login Page for FER202",
+  title: "Lab 1: Next.js Project Setup",
+  description: "Next.js project setup for FER202 Lab 1",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.className} min-h-full bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500 selection:text-white`}>
-        {children}
-      </body>
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
