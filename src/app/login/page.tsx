@@ -3,25 +3,30 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { signIn } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
   }>({});
-  const [success, setSuccess] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newErrors: { email?: string; password?: string } = {};
 
@@ -37,16 +42,22 @@ export default function LoginPage() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setSuccess(false);
+      setAuthError(null);
       return;
     }
 
     setErrors({});
+    setAuthError(null);
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-    }, 600);
+
+    const { error } = await signIn(email, password);
+    setLoading(false);
+
+    if (error) {
+      setAuthError(error.message);
+    } else {
+      router.push("/");
+    }
   };
 
   const handleEmailChange = (val: string) => {
@@ -146,14 +157,14 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Success */}
-          {success && (
+          {/* Supabase Error message */}
+          {authError && (
             <div
-              data-testid="form-success"
-              className="mb-6 p-4 rounded-xl text-sm border font-medium flex items-start gap-3 bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+              data-testid="error-auth"
+              className="mb-6 p-4 rounded-xl text-sm border font-medium flex items-start gap-3 bg-rose-500/10 border-rose-500/30 text-rose-300"
             >
               <svg
-                className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5"
+                className="w-5 h-5 text-rose-400 shrink-0 mt-0.5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -162,10 +173,10 @@ export default function LoginPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span>Login successful (demo)</span>
+              <span>{authError}</span>
             </div>
           )}
 

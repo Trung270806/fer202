@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "TrungTech – Premium Tech Store",
-  description: "Explore premium gadgets and tech accessories at TrungTech. Lab 2 FER202 project.",
+  description: "Explore premium gadgets and tech accessories at TrungTech. Lab 3 FER202 project.",
 };
 
 export default function RootLayout({
@@ -19,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("dark font-sans", geist.variable)}>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

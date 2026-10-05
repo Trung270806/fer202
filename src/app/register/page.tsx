@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -19,22 +20,23 @@ interface FormErrors {
 }
 
 export default function RegisterPage() {
+  const { signUp } = useAuth();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
+  const [authError, setAuthError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const validate = (
-    fields: {
-      name: string;
-      email: string;
-      password: string;
-      confirmPassword: string;
-    }
-  ): FormErrors => {
+  const validate = (fields: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }): FormErrors => {
     const errs: FormErrors = {};
     if (!fields.name.trim()) errs.name = "Full name is required";
     if (!fields.email.trim()) {
@@ -55,23 +57,30 @@ export default function RegisterPage() {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errs = validate({ name, email, password, confirmPassword });
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       setSuccess(false);
+      setAuthError(null);
       return;
     }
     setErrors({});
+    setAuthError(null);
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    const { error } = await signUp(email, password);
+    setLoading(false);
+
+    if (error) {
+      setAuthError(error.message);
+      setSuccess(false);
+    } else {
       setSuccess(true);
-    }, 600);
+    }
   };
 
-  // Live-clear errors as user types (only if field already had an error shown)
   const handleNameChange = (val: string) => {
     setName(val);
     if (errors.name) {
@@ -100,7 +109,6 @@ export default function RegisterPage() {
       else if (val.length < 6) msg = "Password must be at least 6 characters";
       setErrors((prev) => ({ ...prev, password: msg }));
     }
-    // Also re-check confirm password if it was already showing mismatch
     if (errors.confirmPassword === "Passwords do not match") {
       setErrors((prev) => ({
         ...prev,
@@ -189,6 +197,29 @@ export default function RegisterPage() {
             </p>
           </div>
 
+          {/* Supabase error */}
+          {authError && (
+            <div
+              data-testid="error-auth"
+              className="mb-6 p-4 rounded-xl text-sm border font-medium flex items-start gap-3 bg-rose-500/10 border-rose-500/30 text-rose-300"
+            >
+              <svg
+                className="w-5 h-5 text-rose-400 shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>{authError}</span>
+            </div>
+          )}
+
           {/* Success */}
           {success && (
             <div
@@ -208,7 +239,7 @@ export default function RegisterPage() {
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span>Registration successful (demo)</span>
+              <span>Registration successful</span>
             </div>
           )}
 

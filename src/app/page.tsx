@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
+import Header from "@/components/Header";
 
 export default function HomePage() {
   return (
@@ -11,55 +10,10 @@ export default function HomePage() {
       <div className="fixed bottom-1/3 right-1/4 w-80 h-80 bg-cyan-700/10 rounded-full blur-3xl pointer-events-none" />
       <div className="fixed top-1/2 left-0 w-64 h-64 bg-violet-700/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* ── HEADER ── */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/80 backdrop-blur-xl bg-slate-950/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center glow-effect">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            </div>
-            <span className="text-lg font-extrabold tracking-tight text-white">
-              Trung<span className="text-indigo-400">Tech</span>
-            </span>
-          </div>
+      {/* Header */}
+      <Header />
 
-          {/* Nav buttons */}
-          <nav className="flex items-center gap-3">
-            <Link href="/login">
-              <Button
-                data-testid="btn-login"
-                variant="outline"
-                className="border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200 hover:text-white hover:border-indigo-500/50 transition-all text-sm font-semibold"
-              >
-                Login
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button
-                data-testid="btn-register"
-                className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-semibold shadow-lg shadow-indigo-500/20 transition-all text-sm"
-              >
-                Register
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* ── HERO ── */}
+      {/* Hero */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold uppercase tracking-widest">
@@ -79,7 +33,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── PRODUCT GRID ── */}
+      {/* Product Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <div
           data-testid="product-list"
@@ -91,7 +45,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
+      {/* Footer */}
       <footer className="border-t border-slate-800/60 py-8">
         <p className="text-center text-xs text-slate-500">
           © 2025 TrungTech. All rights reserved.
