@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 export default function Header() {
   const { user, loading, signOut } = useAuth();
+  const { favorites } = useFavorites();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
@@ -36,7 +38,20 @@ export default function Header() {
           {!loading && (
             <>
               {user ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Link
+                    href="/favorites"
+                    data-testid="link-favorites"
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-slate-800/60 border border-transparent hover:border-slate-700/60 transition-all"
+                  >
+                    <span>Favorites</span>
+                    <span
+                      data-testid="favorites-count"
+                      className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                    >
+                      {favorites.length}
+                    </span>
+                  </Link>
                   <Link
                     href="/account"
                     className="text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors"

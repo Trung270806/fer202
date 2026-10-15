@@ -3,6 +3,7 @@ import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const inter = Inter({ subsets: ["latin"] });
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("dark font-sans", geist.variable)}>
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <FavoritesProvider>{children}</FavoritesProvider>
+        </AuthProvider>
       </body>
     </html>
   );
