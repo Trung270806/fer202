@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 5. Revalidate product page cache
+  revalidatePath(`/products/${product_id}`, "page");
   revalidatePath(`/products/${product_id}`);
 
   // 6. Return 201 with created row

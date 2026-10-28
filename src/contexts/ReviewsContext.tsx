@@ -68,9 +68,10 @@ export function ReviewsProvider({
 
   const deletedIdsRef = useRef<Set<number>>(new Set());
   const updatedReviewsRef = useRef<Map<number, Partial<Review>>>(new Map());
+  const addedReviewsRef = useRef<Map<number, Review>>(new Map());
 
   // Sync state if initialReviews updates from server revalidation,
-  // while preserving optimistic deletions and updates
+  // while preserving optimistic additions, updates, and deletions
   useEffect(() => {
     const synced = initialReviews
       .filter((r) => !deletedIdsRef.current.has(r.id))
@@ -78,7 +79,19 @@ export function ReviewsProvider({
         const updated = updatedReviewsRef.current.get(r.id);
         return updated ? { ...r, ...updated } : r;
       });
-    dispatch({ type: "SET", payload: synced });
+
+    // Remove any items from addedReviewsRef that have now arrived in initialReviews
+    const syncedIds = new Set(synced.map((r) => r.id));
+    for (const id of syncedIds) {
+      addedReviewsRef.current.delete(id);
+    }
+
+    // Keep any newly added reviews that are not yet reflected in initialReviews (due to server cache)
+    const pendingAdded = Array.from(addedReviewsRef.current.values()).filter(
+      (r) => !deletedIdsRef.current.has(r.id)
+    );
+
+    dispatch({ type: "SET", payload: [...pendingAdded, ...synced] });
   }, [initialReviews]);
 
   // Find the logged-in user's review
@@ -119,6 +132,8 @@ export function ReviewsProvider({
         return { error: data.error || "Failed to submit review" };
       }
 
+      addedReviewsRef.current.set(data.id, data);
+      deletedIdsRef.current.delete(data.id);
       dispatch({ type: "ADD", payload: data });
       router.refresh();
       return { data };
@@ -179,6 +194,8 @@ export function ReviewsProvider({
       }
 
       deletedIdsRef.current.add(reviewToDelete.id);
+      addedReviewsRef.current.delete(reviewToDelete.id);
+      updatedReviewsRef.current.delete(reviewToDelete.id);
       router.refresh();
       return { success: true };
     } catch (err: any) {
