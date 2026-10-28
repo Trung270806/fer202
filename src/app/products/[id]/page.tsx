@@ -3,12 +3,17 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { products } from "@/data/products";
+import { getReviewsForProduct } from "@/lib/reviews";
 import Header from "@/components/Header";
 import FavoriteButton from "@/components/FavoriteButton";
+import { ReviewsProvider } from "@/contexts/ReviewsContext";
+import ReviewsSection from "@/components/ReviewsSection";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
 }
+
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return products.map((product) => ({
@@ -48,6 +53,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   if (!product) {
     notFound();
   }
+
+  const reviewsData = await getReviewsForProduct(numericId);
 
   return (
     <main className="min-h-screen bg-slate-950 text-white selection:bg-indigo-500 selection:text-white">
@@ -153,6 +160,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
           </div>
         </div>
+
+        {/* Reviews Section wrapped with ReviewsProvider */}
+        <ReviewsProvider
+          productId={numericId}
+          initialReviews={reviewsData.reviews}
+        >
+          <ReviewsSection productId={numericId} />
+        </ReviewsProvider>
       </div>
 
       {/* Footer */}
