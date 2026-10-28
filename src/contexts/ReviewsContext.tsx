@@ -5,6 +5,7 @@ import {
   useContext,
   useReducer,
   useMemo,
+  useRef,
   useEffect,
   ReactNode,
 } from "react";
@@ -65,9 +66,19 @@ export function ReviewsProvider({
   const { user, session } = useAuth();
   const router = useRouter();
 
-  // Sync state if initialReviews updates from server revalidation
+  const deletedIdsRef = useRef<Set<number>>(new Set());
+  const updatedReviewsRef = useRef<Map<number, Partial<Review>>>(new Map());
+
+  // Sync state if initialReviews updates from server revalidation,
+  // while preserving optimistic deletions and updates
   useEffect(() => {
-    dispatch({ type: "SET", payload: initialReviews });
+    const synced = initialReviews
+      .filter((r) => !deletedIdsRef.current.has(r.id))
+      .map((r) => {
+        const updated = updatedReviewsRef.current.get(r.id);
+        return updated ? { ...r, ...updated } : r;
+      });
+    dispatch({ type: "SET", payload: synced });
   }, [initialReviews]);
 
   // Find the logged-in user's review
@@ -134,6 +145,7 @@ export function ReviewsProvider({
         return { error: error.message };
       }
 
+      updatedReviewsRef.current.set(myReview.id, { rating, comment });
       dispatch({ type: "UPDATE", payload: data });
       router.refresh();
       return { data };
@@ -166,10 +178,12 @@ export function ReviewsProvider({
         return { error: error.message };
       }
 
+      deletedIdsRef.current.add(reviewToDelete.id);
       router.refresh();
       return { success: true };
     } catch (err: any) {
       // Rollback on error
+      deletedIdsRef.current.delete(reviewToDelete.id);
       dispatch({ type: "SET", payload: previousReviews });
       return { error: err.message || "Failed to delete review" };
     }

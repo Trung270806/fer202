@@ -44,8 +44,12 @@ export default function ReviewItem({ review }: ReviewItemProps) {
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    await deleteReview();
+    const result = await deleteReview();
     setIsDeleting(false);
+    if (result?.error) {
+      console.error("Delete review error:", result.error);
+      alert("Failed to delete review: " + result.error);
+    }
   };
 
   return (
